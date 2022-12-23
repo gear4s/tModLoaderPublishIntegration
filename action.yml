@@ -1,14 +1,8 @@
 name: tModLoader Automatic Mod Browser Publish
-author: Javid Pack (@JavidPack)
-description: When build.txt is updated with new version, automatically build and publish to tModLoader Mod Browser. Must execute on windows runner.
+author: Aaron Marais (@gear4s) - originally Javid Pack (@JavidPack)
+description: Automatically build tModLoader Mod. Must execute on windows runner.
 
 inputs:
-    STEAMID64:
-        description: steamid64 to use for publishing. Account must be owner or maintainer of the mod.
-        required: true
-    MODBROWSERPASSPHRASE:
-        description: Mod Browser Passphrase corresponding to the provided steamid64. Please make sure to use the Secrets in Github, do not write your passphrase in plain text in your workflow file.
-        required: true
     MODNAME:
         description: The internal name of the mod. Defaults to the repository name.
         required: false
@@ -17,14 +11,10 @@ inputs:
 runs:
   using: "composite"
   steps: 
-    - name: Determine if build.txt is newer than Mod Browser
-      run: python $GITHUB_ACTION_PATH/CheckBuildTxtVersion.py
+    - name: Build Mod
       shell: bash
       env:
-        INPUT_STEAMID64: ${{ inputs.STEAMID64 }}
-        INPUT_MODBROWSERPASSPHRASE: ${{ inputs.MODBROWSERPASSPHRASE }}
         INPUT_MODNAME: ${{ inputs.MODNAME }}
-    - name: Build Mod
       run: |
         if [ -z "$INPUT_MODNAME" ]; then
           echo "MODNAME Not provided, mod publish failure."
@@ -73,30 +63,6 @@ runs:
         echo Done Building
         cd ModLoader/Mods
         ls -l
-      shell: bash
-      env:
-        INPUT_STEAMID64: ${{ inputs.STEAMID64 }}
-        INPUT_MODBROWSERPASSPHRASE: ${{ inputs.MODBROWSERPASSPHRASE }}
-        INPUT_MODNAME: ${{ inputs.MODNAME }}
-    - name: Publish Mod if newer
-      run: |
-        if [ "$PUBLISH_NEEDED" != "yes" ]; then
-          echo "Publish Not Needed, skipping step."
-          exit
-        fi
-        echo PUBLISH_NEEDED is $PUBLISH_NEEDED
-        echo pwd is: ${PWD}
-        cd $HOME
-        cd tModLoader
-        echo pwd is: ${PWD}
-        echo Publish Mod
-        ./tModLoaderServer -publish $INPUT_MODNAME -passphrase $INPUT_MODBROWSERPASSPHRASE -steamid64 $INPUT_STEAMID64
-        echo Publish complete
-      shell: bash
-      env:
-        INPUT_STEAMID64: ${{ inputs.STEAMID64 }}
-        INPUT_MODBROWSERPASSPHRASE: ${{ inputs.MODBROWSERPASSPHRASE }}
-        INPUT_MODNAME: ${{ inputs.MODNAME }}
 
 branding:
     icon: server
