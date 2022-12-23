@@ -5,7 +5,7 @@ description: Automatically build tModLoader Mod. Must execute on windows runner.
 inputs:
     MODNAME:
         description: The internal name of the mod. Defaults to the repository name.
-        required: false
+        required: true
         default: ${{ github.event.repository.name }}
 
 runs:
